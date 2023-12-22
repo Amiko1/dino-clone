@@ -1,61 +1,61 @@
-const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const webpack = require('webpack');
+const path = require("path");
+const CopyPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const webpack = require("webpack");
 
 module.exports = {
-  mode: 'development',
+  mode: "development",
   entry: {
-    app: './src/index.ts'
+    app: "./src/index.ts",
   },
   devtool: "eval-source-map",
   output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'build'),
+    filename: "[name].js",
+    path: path.resolve(__dirname, "build"),
   },
   optimization: {
     splitChunks: {
       cacheGroups: {
         commons: {
           test: /[\\/]node_modules[\\/]/,
-          name: 'vendor',
-          chunks: 'all'
-        }
-      }
-    }
+          name: "vendor",
+          chunks: "all",
+        },
+      },
+    },
   },
   module: {
     rules: [
       {
         test: /\.ts?$/,
-        include: path.resolve(__dirname, 'src'),
-        loader: 'ts-loader'
-      }
-    ]
+        include: path.resolve(__dirname, "src"),
+        loader: "ts-loader",
+      },
+    ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
+    extensions: [".tsx", ".ts", ".js"],
   },
   devServer: {
-    static: path.resolve(__dirname, 'build'),
+    static: path.resolve(__dirname, "build"),
     compress: true,
     port: 8080,
   },
   plugins: [
     new webpack.DefinePlugin({
-      'CANVAS_RENDERER': JSON.stringify(true),
-      'WEBGL_RENDERER': JSON.stringify(true)
+      CANVAS_RENDERER: JSON.stringify(true),
+      WEBGL_RENDERER: JSON.stringify(true),
     }),
     new HtmlWebpackPlugin({
-      template: './index.html'
+      template: "./index.html",
     }),
     new CopyPlugin({
       patterns: [
         {
-          from: path.resolve(__dirname, 'assets/**/*'),
-          to: path.resolve(__dirname, 'build')
-        }
-      ]
-    })
-  ]
+          from: path.resolve(__dirname, "assets"),
+          to: path.resolve(__dirname, "build/assets"),
+        },
+      ],
+    }),
+  ],
 };
