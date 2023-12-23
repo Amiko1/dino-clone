@@ -5,6 +5,7 @@ import { SpriteWithDynamicBody } from "../types";
 class PlayScene extends Phaser.Scene {
   player: Player;
   startTrigger: SpriteWithDynamicBody;
+  ground: Phaser.GameObjects.TileSprite;
   constructor() {
     super("PlayScene");
   }
@@ -13,15 +14,38 @@ class PlayScene extends Phaser.Scene {
     return this.game.config.height as number;
   }
 
+  get gameWidth() {
+    return this.game.config.width as number;
+  }
+
   create() {
     this.createEnvironment();
     this.createPlayer();
 
     this.startTrigger = this.physics.add.sprite(0, 10, null).setOrigin(0,1).setAlpha(0)
-    this.registerPlayerControl()
 
     this.physics.add.overlap(this.startTrigger, this.player, () => {
-      console.log('overlap')
+      if(this.startTrigger.y === 10) {
+        this.startTrigger.body.reset(0, this.gameHeight);
+        return; 
+      }
+
+      this.startTrigger.body.reset(9999, 9999);
+
+      const rollOutEvent = this.time.addEvent({
+        delay: 1000/60,
+        loop: true,
+        callback: () => {
+          this.player.setVelocityX(80)
+          this.player.playRunAnimation()
+          this.ground.width += 34;
+          if(this.ground.width >= this.gameWidth) {
+            rollOutEvent.remove();
+            this.ground.width = this.gameWidth
+            this.player.setVelocityX(0);  
+          }
+        }
+      })
     })
   }
 
@@ -29,15 +53,10 @@ class PlayScene extends Phaser.Scene {
     this.player = new Player(this, 0, this.gameHeight);  
   }
 
-  registerPlayerControl() {
-     const spaceBar =  this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-     spaceBar.on("down", () => {
-      this.player.setVelocityY(-1600);
-    });
-  }
+ 
 
   createEnvironment() {
-    this.add.tileSprite(0, this.gameHeight, 88, 26, "ground").setOrigin(0, 1);
+    this.ground = this.add.tileSprite(0, this.gameHeight, 88, 26, "ground").setOrigin(0, 1);
   }
 }
 
