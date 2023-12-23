@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { PRELOAD_CONFIG } from "..";
 
 class PreloadScene extends Phaser.Scene {
   constructor() {

@@ -8,6 +8,7 @@ class PlayScene extends GameScene {
   startTrigger: SpriteWithDynamicBody;
   ground: Phaser.GameObjects.TileSprite;
   obsticles: Phaser.Physics.Arcade.Group;
+  gameSpeed: number = 10;
 
   spawnInterval: number = 1500;
   spawnTime: number = 0;
@@ -64,12 +65,26 @@ class PlayScene extends GameScene {
   }
 
   update(time: number, deltaTime: number) {
+    if (!this.isGameRunning) {
+      return;
+    }
+
     this.spawnTime += deltaTime;
 
     if (this.spawnTime > this.spawnInterval) {
       this.spawnObsticles();
       this.spawnTime = 0;
     }
+
+    Phaser.Actions.IncX(this.obsticles.getChildren(), -this.gameSpeed);
+
+    this.obsticles.getChildren().forEach((obsticle: SpriteWithDynamicBody) => {
+      if (obsticle.getBounds().right < 0) {
+        this.obsticles.remove(obsticle);
+      }
+    });
+
+    this.ground.tilePositionX += this.gameSpeed;
   }
 
   spawnObsticles() {
