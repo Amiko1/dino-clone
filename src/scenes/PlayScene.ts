@@ -8,8 +8,12 @@ class PlayScene extends GameScene {
   startTrigger: SpriteWithDynamicBody;
   ground: Phaser.GameObjects.TileSprite;
   obsticles: Phaser.Physics.Arcade.Group;
+  clouds: Phaser.GameObjects.Group;
   gameSpeed: number = 10;
+  gameSpeedModifier: number = 1;
 
+  highScoreText: Phaser.GameObjects.Text;
+  scoreText: Phaser.GameObjects.Text;
   gameOverContainer: Phaser.GameObjects.Container;
   gameOverText: Phaser.GameObjects.Image;
   restartText: Phaser.GameObjects.Image;
@@ -17,6 +21,10 @@ class PlayScene extends GameScene {
   spawnInterval: number = 1500;
   spawnTime: number = 0;
 
+  score: number = 0;
+  scoreInterval: number = 100;
+  scoreDeltaTime: number = 0;
+  progressSound: Phaser.Sound.HTML5AudioSound;
   constructor() {
     super("PlayScene");
   }
@@ -26,17 +34,30 @@ class PlayScene extends GameScene {
     this.createPlayer();
     this.createObstacles();
     this.createGameoverContainer();
+    this.createScore();
 
     this.handleGameStart();
     this.handleObstacleCollisions();
     this.handleGameRestart();
     this.createAnimations();
+    this.progressSound = this.sound.add("progress", {
+      volume: 0.2,
+    }) as Phaser.Sound.HTML5AudioSound;
   }
 
   createEnvironment() {
     this.ground = this.add
       .tileSprite(0, this.gameHeight, 88, 26, "ground")
       .setOrigin(0, 1);
+
+    this.clouds = this.add.group();
+    this.clouds = this.clouds.addMultiple([
+      this.add.image(this.gameWidth / 2, 170, "cloud"),
+      this.add.image(this.gameWidth - 80, 80, "cloud"),
+      this.add.image(this.gameWidth / 1.3, 100, "cloud"),
+    ]);
+
+    this.clouds.setAlpha(0);
   }
 
   createPlayer() {
@@ -49,13 +70,43 @@ class PlayScene extends GameScene {
     }
 
     this.spawnTime += deltaTime;
+    this.scoreDeltaTime += deltaTime;
+
+    if (this.scoreDeltaTime >= this.scoreInterval) {
+      this.score++;
+      this.scoreDeltaTime = 0;
+      if (this.score % 100 === 0) {
+        this.gameSpeedModifier += 0.2;
+        this.progressSound.play();
+        this.tweens.add({
+          targets: this.scoreText,
+          duration: 100,
+          repeat: 3,
+          alpha: 0,
+          yoyo: true,
+        });
+      }
+    }
 
     if (this.spawnTime > this.spawnInterval) {
       this.spawnObsticles();
       this.spawnTime = 0;
     }
 
-    Phaser.Actions.IncX(this.obsticles.getChildren(), -this.gameSpeed);
+    Phaser.Actions.IncX(
+      this.obsticles.getChildren(),
+      -this.gameSpeed * this.gameSpeedModifier
+    );
+
+    Phaser.Actions.IncX(this.clouds.getChildren(), -0.5);
+
+    const score = Array.from(String(this.score), Number);
+
+    for (let i = 0; i < 5 - String(this.score).length; i++) {
+      score.unshift(0);
+    }
+
+    this.scoreText.setText(score.join(""));
 
     this.obsticles.getChildren().forEach((obsticle: SpriteWithDynamicBody) => {
       if (obsticle.getBounds().right < 0) {
@@ -63,7 +114,13 @@ class PlayScene extends GameScene {
       }
     });
 
-    this.ground.tilePositionX += this.gameSpeed;
+    this.clouds.getChildren().forEach((cloud: SpriteWithDynamicBody) => {
+      if (cloud.getBounds().right < 0) {
+        cloud.x = this.gameWidth + 30;
+      }
+    });
+
+    this.ground.tilePositionX += this.gameSpeed * this.gameSpeedModifier;
   }
 
   createObstacles() {
@@ -136,6 +193,8 @@ class PlayScene extends GameScene {
             rollOutEvent.remove();
             this.ground.width = this.gameWidth;
             this.player.setVelocityX(0);
+            this.clouds.setAlpha(1);
+            this.scoreText.setAlpha(1);
           }
         },
       });
@@ -162,8 +221,23 @@ class PlayScene extends GameScene {
       this.isGameRunning = false;
       this.player.die();
       this.gameOverContainer.setAlpha(1);
+
+      const newHighScore = this.highScoreText.text.substring(
+        this.highScoreText.text.length - 5
+      );
+      const newScore =
+        Number(this.scoreText.text) > Number(newHighScore)
+          ? this.scoreText.text
+          : newHighScore;
+
+      this.highScoreText.setText("HI " + newScore);
+      this.highScoreText.setAlpha(1);
+
       this.spawnTime = 0;
       this.gameSpeed = 10;
+      this.score = 0;
+      this.gameSpeedModifier = 1;
+      this.scoreDeltaTime = 0;
     });
   }
 
@@ -174,6 +248,28 @@ class PlayScene extends GameScene {
       frameRate: 6,
       repeat: -1,
     });
+  }
+
+  createScore() {
+    this.scoreText = this.add
+      .text(this.gameWidth, 0, "00000", {
+        fontSize: 30,
+        fontFamily: "Arial",
+        color: "#535353",
+        resolution: 5,
+      })
+      .setOrigin(1, 0)
+      .setAlpha(0);
+
+    this.highScoreText = this.add
+      .text(this.scoreText.getBounds().left - 20, 0, "00000", {
+        fontSize: 30,
+        fontFamily: "Arial",
+        color: "#535353",
+        resolution: 5,
+      })
+      .setOrigin(1, 0)
+      .setAlpha(0);
   }
 }
 

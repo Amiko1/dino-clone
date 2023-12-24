@@ -4,6 +4,8 @@ import { GameScene } from "../scenes/GameScene";
 export class Player extends Phaser.Physics.Arcade.Sprite {
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   scene: GameScene;
+  jumpSound: Phaser.Sound.HTML5AudioSound;
+  hitSound: Phaser.Sound.HTML5AudioSound;
   constructor(scene: GameScene, x: number, y: number) {
     super(scene, x, y, "dino-run");
 
@@ -24,6 +26,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       .setDepth(1);
 
     this.registerAnimation();
+    this.registerSounds();
   }
 
   update() {
@@ -37,13 +40,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     if (isSpaceJustDown && onFloor) {
       this.setVelocityY(-1600);
+      this.jumpSound.play();
     }
 
     if (isDownJustDown && onFloor) {
       this.body.setSize(this.body.width, 58);
       this.setOffset(60, 34);
     }
-    console.log(isDownJustUp, isDownJustDown);
     if (isDownJustUp && onFloor) {
       this.body.setSize(44, 92);
       this.setOffset(20, 0);
@@ -60,7 +63,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.playRunAnimation();
     }
   }
-
+  registerSounds() {
+    this.jumpSound = this.scene.sound.add("jump", {
+      volume: 0.2,
+    }) as Phaser.Sound.HTML5AudioSound;
+    this.hitSound = this.scene.sound.add("hit", {
+      volume: 0.2,
+    }) as Phaser.Sound.HTML5AudioSound;
+  }
   playRunAnimation() {
     this.body.height <= 58
       ? this.play("dino-down", true)
@@ -86,5 +96,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   die() {
     this.anims.pause();
     this.setTexture("dino-hurt");
+    this.hitSound.play();
   }
 }
