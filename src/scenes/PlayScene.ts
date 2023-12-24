@@ -32,14 +32,14 @@ class PlayScene extends GameScene {
     this.handleGameRestart();
   }
 
-  createPlayer() {
-    this.player = new Player(this, 0, this.gameHeight);
-  }
-
   createEnvironment() {
     this.ground = this.add
       .tileSprite(0, this.gameHeight, 88, 26, "ground")
       .setOrigin(0, 1);
+  }
+
+  createPlayer() {
+    this.player = new Player(this, 0, this.gameHeight);
   }
 
   update(time: number, deltaTime: number) {
@@ -124,7 +124,14 @@ class PlayScene extends GameScene {
 
   handleGameRestart() {
     this.restartText.on("pointerdown", () => {
-      console.log("RES");
+      this.physics.resume();
+      this.player.setVelocityY(0);
+
+      this.obsticles.clear(true, true);
+      this.gameOverContainer.setAlpha(0);
+      this.anims.resumeAll();
+
+      this.isGameRunning = true;
     });
   }
 
@@ -135,7 +142,7 @@ class PlayScene extends GameScene {
       this.player.die();
       this.gameOverContainer.setAlpha(1);
       this.spawnTime = 0;
-      this.gameSpeed = 0;
+      this.gameSpeed = 10;
     });
   }
 }
