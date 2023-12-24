@@ -24,54 +24,12 @@ class PlayScene extends GameScene {
   create() {
     this.createEnvironment();
     this.createPlayer();
+    this.createObstacles();
+    this.createGameoverContainer();
 
-    this.obsticles = this.physics.add.group();
-
-    this.gameOverText = this.add.image(0, 0, "game-over");
-    this.restartText = this.add.image(0, 80, "restart");
-
-    this.gameOverContainer = this.add
-      .container(this.gameWidth / 2, this.gameHeight / 2 - 50)
-      .add([this.gameOverText, this.restartText])
-      .setAlpha(0);
-    this.startTrigger = this.physics.add
-      .sprite(0, 10, null)
-      .setOrigin(0, 1)
-      .setAlpha(0);
-
-    this.physics.add.collider(this.obsticles, this.player, () => {
-      this.physics.pause();
-      this.isGameRunning = false;
-      this.player.die();
-      this.gameOverContainer.setAlpha(1);
-      this.spawnTime = 0;
-      this.gameSpeed = 0;
-    });
-
-    this.physics.add.overlap(this.startTrigger, this.player, () => {
-      if (this.startTrigger.y === 10) {
-        this.startTrigger.body.reset(0, this.gameHeight);
-        return;
-      }
-
-      this.isGameRunning = true;
-      this.startTrigger.body.reset(9999, 9999);
-
-      const rollOutEvent = this.time.addEvent({
-        delay: 1000 / 60,
-        loop: true,
-        callback: () => {
-          this.player.setVelocityX(80);
-          this.player.playRunAnimation();
-          this.ground.width += 34;
-          if (this.ground.width >= this.gameWidth) {
-            rollOutEvent.remove();
-            this.ground.width = this.gameWidth;
-            this.player.setVelocityX(0);
-          }
-        },
-      });
-    });
+    this.handleGameStart();
+    this.handleObstacleCollisions();
+    this.handleGameRestart();
   }
 
   createPlayer() {
@@ -107,6 +65,20 @@ class PlayScene extends GameScene {
     this.ground.tilePositionX += this.gameSpeed;
   }
 
+  createObstacles() {
+    this.obsticles = this.physics.add.group();
+  }
+
+  createGameoverContainer() {
+    this.gameOverText = this.add.image(0, 0, "game-over");
+    this.restartText = this.add.image(0, 80, "restart").setInteractive();
+
+    this.gameOverContainer = this.add
+      .container(this.gameWidth / 2, this.gameHeight / 2 - 50)
+      .add([this.gameOverText, this.restartText])
+      .setAlpha(0);
+  }
+
   spawnObsticles() {
     const obstacleNum =
       Math.floor(Math.random() * PRELOAD_CONFIG.cactusesCount) + 1;
@@ -116,6 +88,55 @@ class PlayScene extends GameScene {
       .create(distance, this.gameHeight, `obstacle-${obstacleNum}`)
       .setOrigin(0, 1)
       .setImmovable();
+  }
+
+  handleGameStart() {
+    this.startTrigger = this.physics.add
+      .sprite(0, 10, null)
+      .setOrigin(0, 1)
+      .setAlpha(0);
+
+    this.physics.add.overlap(this.startTrigger, this.player, () => {
+      if (this.startTrigger.y === 10) {
+        this.startTrigger.body.reset(0, this.gameHeight);
+        return;
+      }
+
+      this.isGameRunning = true;
+      this.startTrigger.body.reset(9999, 9999);
+
+      const rollOutEvent = this.time.addEvent({
+        delay: 1000 / 60,
+        loop: true,
+        callback: () => {
+          this.player.setVelocityX(80);
+          this.player.playRunAnimation();
+          this.ground.width += 34;
+          if (this.ground.width >= this.gameWidth) {
+            rollOutEvent.remove();
+            this.ground.width = this.gameWidth;
+            this.player.setVelocityX(0);
+          }
+        },
+      });
+    });
+  }
+
+  handleGameRestart() {
+    this.restartText.on("pointerdown", () => {
+      console.log("RES");
+    });
+  }
+
+  handleObstacleCollisions() {
+    this.physics.add.collider(this.obsticles, this.player, () => {
+      this.physics.pause();
+      this.isGameRunning = false;
+      this.player.die();
+      this.gameOverContainer.setAlpha(1);
+      this.spawnTime = 0;
+      this.gameSpeed = 0;
+    });
   }
 }
 
