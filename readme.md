@@ -8,7 +8,7 @@
 <p align="center">
   <a href="#key-features">Key Features</a> •
   <a href="#how-to-use">How To Use</a> •
-  <a href="#You-may-also-like...">You may also alike</a> •
+  <a href="#you-may-also-like">You may also like</a> •
   <a href="#credits">Credits</a> •
 </p>
 
@@ -55,7 +55,7 @@ This software uses the following open source packages:
 
 
 
-## You may also like...
+## You may also like
 
 - [Fly bird Clone](https://github.com/Amiko1/fly-bird)
 
