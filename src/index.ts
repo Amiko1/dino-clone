@@ -9,8 +9,11 @@ export const PRELOAD_CONFIG = {
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 1000,
-  height: 340,
+  scale: {
+    width: 1000,
+    height: 340,
+    mode: Phaser.Scale.FIT, // Adjust scaling mode as needed
+  },
   pixelArt: true,
   transparent: true,
   physics: {
