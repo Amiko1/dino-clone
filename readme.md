@@ -12,8 +12,9 @@
   <a href="#credits">Credits</a> •
 </p>
 
+<div align="center">
 ![alt text](https://miro.medium.com/v2/resize:fit:435/1*UoyyI91juQgWn2eLBKjSQQ.png)
-
+</div>
 ## Key Features
 
 * Player Controls
@@ -59,6 +60,6 @@ This software uses the following open source packages:
 
 
 
-> GitHub [@Amiko](https://github.com/Amiko1) &nbsp;&middot;&nbsp;
-> Linkedin [@amit_merchant](https://www.linkedin.com/in/amiran-burjanadze-a301111b7/)
+> GitHub [@Amiko1](https://github.com/Amiko1) &nbsp;&middot;&nbsp;
+> Linkedin [@amiran burjanadze](https://www.linkedin.com/in/amiran-burjanadze-a301111b7/)
 
