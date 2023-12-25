@@ -9,7 +9,7 @@
   <a href="#key-features">Key Features</a> •
   <a href="#how-to-use">How To Use</a> •
   <a href="#credits">Credits</a> •
-  <a href="#you-may-also-like">You may also like</a> •
+  <a href="#you-may-also-like">You may also like</a> 
 
 </p>
 
